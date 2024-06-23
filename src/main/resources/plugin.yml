@@ -1,0 +1,31 @@
+name: SilktouchSpawners
+version: '1.0'
+main: me.niko302.silktouchspawners.silktouchspawners
+api-version: '1.20'
+
+commands:
+  reloadconfig:
+    description: Reloads the plugin configuration
+    usage: /silktouchspawners reloadconfig
+  silktouchspawners:
+    description: Main command for SilkTouchSpawners plugin.
+    usage: /silktouchspawners give <player> <spawnertype> <amount>
+    aliases: [sts]
+  givecustomitem:
+    description: Gives a custom item to a player
+    usage: /silktouchspawners givecustomitem <player> <itemname>
+    aliases: [giveci]
+
+permissions:
+  silktouchspawners.mine:
+    description: Allows the player to mine spawners with Silk Touch
+    default: op
+  silktouchspawners.reload:
+    description: Allows the player to reload the plugin configuration
+    default: op
+  silktouchspawners.changespawner:
+    description: Allows players to change the spawner type using a mob egg
+    default: op
+  silktouchspawners.give:
+    description: Allows players to give spawners to other players
+    default: op
