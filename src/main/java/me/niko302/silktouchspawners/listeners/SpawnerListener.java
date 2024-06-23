@@ -1,6 +1,7 @@
 package me.niko302.silktouchspawners.listeners;
 
 import me.niko302.silktouchspawners.SilktouchSpawners;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -56,7 +57,6 @@ public class SpawnerListener implements Listener {
 
         // Check if the event is triggered by one-time use item
         if (meta.hasLore() && meta.getLore().contains(plugin.getConfigManager().getRequiredLoreOneTimeUse())) {
-            handleSpawnerBreak(event, block, player, tool, true);
             return;
         }
 
@@ -65,7 +65,7 @@ public class SpawnerListener implements Listener {
             boolean hasRequiredLore = meta.hasLore() && meta.getLore().contains(plugin.getConfigManager().getRequiredLore());
 
             if ((plugin.getConfigManager().isRequireSilkTouch() && hasSilkTouch) || hasRequiredLore) {
-                handleSpawnerBreak(event, block, player, tool, false);
+                handleSpawnerBreak(event, block, player, false);
                 return;
             }
         }
@@ -165,22 +165,25 @@ public class SpawnerListener implements Listener {
             return;
         }
 
-        event.setCancelled(true);
-
         // Trigger a BlockBreakEvent to ensure the player can break the block
         BlockBreakEvent blockBreakEvent = new BlockBreakEvent(block, player);
         plugin.getServer().getPluginManager().callEvent(blockBreakEvent);
 
         if (!blockBreakEvent.isCancelled()) {
-            // Call the handleSpawnerBreak method to handle the spawner drop logic
-            handleSpawnerBreak(blockBreakEvent, block, player, item, true);
+            event.setCancelled(true);
+
 
             // Remove only one Nether Star from the player's hand
-            item.setAmount(item.getAmount() - 1);
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                // Call the handleSpawnerBreak method to handle the spawner drop logic
+                handleSpawnerBreak(blockBreakEvent, block, player, true);
+
+                item.setAmount(item.getAmount() - 1);
+            });
         }
     }
 
-    public void handleSpawnerBreak(BlockBreakEvent event, Block block, Player player, ItemStack tool, boolean isOneTimeUse) {
+    public void handleSpawnerBreak(BlockBreakEvent event, Block block, Player player, boolean isOneTimeUse) {
         if (!(block.getState() instanceof CreatureSpawner)) {
             return;
         }
