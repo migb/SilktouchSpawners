@@ -12,12 +12,12 @@ require-silk-touch: true
 
 # The format for the name of the spawner item when it is dropped.
 # Use {mobtype} as a placeholder for the mob type.
-spawner-name: "&7[&FF4500{mobtype} &FFFFFFSpawner&7]"
+spawner-name: "&7[#FF4500{mobtype} #FFFFFFSpawner&7]"
 
 # Lore for the spawner item when it is dropped.
 spawner-lore:
   - ""
-  - "&808080Spawner type: &FF4500{mobtype}"
+  - "#808080Spawner type: #FF4500{mobtype}"
   - ""
 
 # Messages displayed to the player
@@ -25,14 +25,14 @@ spawner-lore:
   #Remember to replace the # with a &
   #example: #76cf12 is written as &76cf12
 messages:
-  prefix: "&FF4500[&FFFFFFSilktouchSpawners&FF4500] "
-  no-permission-change-spawner: "&DC143CYou do not have permission to change the type of mob."
-  no-permission-warning: "&DC143CIf you try to break it again without the proper requirements, the spawner will be broken and not dropped."
-  spawner-break-success: "&FFFFFFYou successfully mined a &FF4500{mobtype} &FFFFFFSpawner!"
-  spawner-place-success: "&FFFFFFYou placed a &FF4500{mobtype} &FFFFFFSpawner!"
-  spawner-drop-message: "&DC143CYour inventory is full. The spawner has been dropped on the ground."
-  spawner-break-failure: "&DC143CThe spawner was broken and not dropped"
-  no-permission-break-spawner-protected: "&DC143CYou cannot take the spawner here because it is protected."
+  prefix: "#FF4500[#FFFFFFSilktouchSpawners#FF4500] "
+  no-permission-change-spawner: "#DC143CYou do not have permission to change the type of mob."
+  no-permission-warning: "#DC143CIf you try to break it again without the proper requirements, the spawner will be broken and not dropped."
+  spawner-break-success: "#FFFFFFYou successfully mined a #FF4500{mobtype} #FFFFFFSpawner!"
+  spawner-place-success: "#FFFFFFYou placed a #FF4500{mobtype} #FFFFFFSpawner!"
+  spawner-drop-message: "#DC143CYour inventory is full. The spawner has been dropped on the ground."
+  spawner-break-failure: "#DC143CThe spawner was broken and not dropped"
+  no-permission-break-spawner-protected: "#DC143CYou cannot take the spawner here because it is protected."
 
 # Global setting to allow or disallow changing spawners with mob eggs.
 # If set to true, players can change spawners with mob eggs.
