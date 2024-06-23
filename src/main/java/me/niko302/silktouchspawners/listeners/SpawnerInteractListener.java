@@ -1,8 +1,7 @@
 package me.niko302.silktouchspawners.listeners;
 
 import me.niko302.silktouchspawners.silktouchspawners;
-import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Material;
+import me.niko302.silktouchspawners.config.ConfigManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,7 +25,10 @@ public class SpawnerInteractListener implements Listener {
             if (!plugin.getConfig().getBoolean("allow-changing-spawners-with-mob-eggs-globally", false) &&
                     !player.hasPermission("silktouchspawners.changespawner")) {
                 event.setCancelled(true);
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("no-permission-change-spawner")));
+                String message = plugin.getConfigManager().getNoPermissionChangeSpawner();
+                if (message != null && !message.isEmpty()) {
+                    player.sendMessage(ConfigManager.translateColorCodes(message));
+                }
             }
         }
     }

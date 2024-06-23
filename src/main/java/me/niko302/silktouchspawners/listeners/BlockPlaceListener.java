@@ -51,7 +51,10 @@ public class BlockPlaceListener implements Listener {
             spawner.setSpawnedType(entityType);
             spawner.update();
 
-            event.getPlayer().sendMessage(ConfigManager.translateColorCodes(plugin.getConfigManager().getSpawnerPlaceSuccessMessage(entityType.name())));
+            String message = plugin.getConfigManager().getSpawnerPlaceSuccessMessage(entityType.name());
+            if (message != null && !message.isEmpty()) {
+                event.getPlayer().sendMessage(ConfigManager.translateColorCodes(message));
+            }
         }
     }
 }

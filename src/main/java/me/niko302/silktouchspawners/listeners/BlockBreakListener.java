@@ -16,9 +16,10 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import java.util.List;
+
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -41,25 +42,31 @@ public class BlockBreakListener implements Listener {
         Player player = event.getPlayer();
         ItemStack tool = player.getInventory().getItemInMainHand();
 
-        if (block.getType() == Material.SPAWNER && player.hasPermission("silktouchspawners.mine")) {
-            ItemMeta meta = tool.getItemMeta();
-            boolean hasSilkTouch = tool.containsEnchantment(Enchantment.SILK_TOUCH);
-            boolean hasRequiredLore = meta != null && meta.hasLore() && meta.getLore().contains(plugin.getConfigManager().getRequiredLore());
+        if (block.getType() == Material.SPAWNER) {
+            CreatureSpawner spawner = (CreatureSpawner) block.getState();
+            EntityType entityType = spawner.getSpawnedType();
 
-            if (hasSilkTouch || hasRequiredLore) {
-                handleSpawnerBreak(event, block, player, tool);
-            } else {
-                if (warnedPlayers.contains(player.getUniqueId())) {
-                    event.setCancelled(true); // Cancel the event to prevent breaking the spawner
-                    player.sendMessage(ConfigManager.translateColorCodes(plugin.getConfigManager().getSpawnerBreakFailureMessage()));
+            if (canMineSpawner(player, entityType)) {
+                ItemMeta meta = tool.getItemMeta();
+                boolean hasSilkTouch = tool.containsEnchantment(Enchantment.SILK_TOUCH);
+                boolean hasRequiredLore = meta != null && meta.hasLore() && meta.getLore().contains(plugin.getConfigManager().getRequiredLore());
+
+                if ((plugin.getConfigManager().isRequireSilkTouch() && hasSilkTouch) || hasRequiredLore) {
+                    handleSpawnerBreak(event, block, player, tool);
                 } else {
-                    event.setCancelled(true); // Cancel the event to prevent breaking the spawner
-                    player.sendMessage(ConfigManager.translateColorCodes(plugin.getConfigManager().getNoPermissionBreakSpawner()));
-                    player.sendMessage(ConfigManager.translateColorCodes(plugin.getConfigManager().getNoPermissionWarning()));
-                    warnedPlayers.add(player.getUniqueId());
+                    handleSpawnerBreakFailure(event, block, player);
                 }
+            } else {
+                handleSpawnerBreakFailure(event, block, player);
             }
         }
+    }
+
+    private boolean canMineSpawner(Player player, EntityType entityType) {
+        if (player.hasPermission("silktouchspawners.mine.all")) {
+            return true;
+        }
+        return player.hasPermission("silktouchspawners.mine." + entityType.name().toLowerCase());
     }
 
     private void handleSpawnerBreak(BlockBreakEvent event, Block block, Player player, ItemStack tool) {
@@ -102,6 +109,20 @@ public class BlockBreakListener implements Listener {
 
         event.setExpToDrop(0);
         warnedPlayers.remove(player.getUniqueId()); // Reset warning status after successful break
+    }
+
+    private void handleSpawnerBreakFailure(BlockBreakEvent event, Block block, Player player) {
+        if (warnedPlayers.contains(player.getUniqueId())) {
+            // Allow the spawner to break normally but without dropping the spawner item
+            event.setCancelled(false);
+            warnedPlayers.remove(player.getUniqueId());
+            player.sendMessage(ConfigManager.translateColorCodes(plugin.getConfigManager().getSpawnerBreakFailureMessage()));
+        } else {
+            event.setCancelled(true); // Cancel the event to prevent breaking the spawner on first try
+            player.sendMessage(ConfigManager.translateColorCodes(plugin.getConfigManager().getNoPermissionBreakSpawner()));
+            player.sendMessage(ConfigManager.translateColorCodes(plugin.getConfigManager().getNoPermissionWarning()));
+            warnedPlayers.add(player.getUniqueId());
+        }
     }
 
     private String formatSpawnerName(String format, String mobType) {

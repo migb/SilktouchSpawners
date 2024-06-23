@@ -1,7 +1,11 @@
 # Configuration for SilkTouchSpawners plugin
 
-# The lore that is required on a pickaxe to break a spawner if Silk Touch is not present.
-required-lore: "Special Lore"
+# The lore that is required on a pickaxe to break a spawner if Silk Touch is not supposed to be used.
+required-lore: "&bSilktouch Spawners"
+
+# Whether Silk Touch is required to mine spawners.
+# if set to false only required lore will work
+require-silk-touch: true
 
 # The format for the name of the spawner item when it is dropped.
 # Use {mobtype} as a placeholder for the mob type.
@@ -10,20 +14,18 @@ spawner-name: "&FF4500{mobtype} &FFFFFFSpawner"
 # Lore for the spawner item when it is dropped.
 spawner-lore:
   - ""
-  - "&FFFFFFSpawner type: &FF4500{mobtype}"
+  - "&808080Spawner type: &FF4500{mobtype}"
   - ""
 
 # Messages displayed to the player
 messages:
-  # Message displayed when the player does not have permission to break the spawner.
+  prefix: "&FF4500[&FFFFFFSilktouchSpawners&FF4500] "
+  no-permission-change-spawner: "&DC143CYou do not have permission to change the type of mob."
   no-permission-break-spawner: "&DC143CYou do not have permission to break this spawner."
-  # Warning message displayed when the player tries to break the spawner without permission or Silk Touch.
   no-permission-warning: "&DC143CIf you try to break it again without the proper requirements, the spawner will be broken and not dropped."
-  # Message displayed when the spawner is successfully broken.
   spawner-break-success: "&FFFFFFYou successfully mined a &FF4500{mobtype} &FFFFFFSpawner!"
-  # Message displayed when the spawner is dropped instead of being added to the player's inventory.
-  spawner-drop-message: "&cYour inventory is full. The spawner has been dropped on the ground."
-  # Message displayed when the spawner is broken without dropping.
+  spawner-place-success: "&FFFFFFYou placed a &FF4500{mobtype} &FFFFFFSpawner!"
+  spawner-drop-message: "&DC143CYour inventory is full. The spawner has been dropped on the ground."
   spawner-break-failure: "&DC143CThe spawner was broken and not dropped because you didn't have the proper requirements."
 
 # Global setting to allow or disallow changing spawners with mob eggs.
@@ -38,19 +40,11 @@ spawner-to-inventory-on-drop: true
 custom-items:
   special_pickaxe:
     itemtype: "DIAMOND_PICKAXE"
-    name: "&bSpecial Pickaxe"
+    name: "&4&lSpawner Pickaxe"
     lore:
-      - "&7This pickaxe has special powers."
+      - "{required-lore}"
+      - "&bYou can mine spawners with this pickaxe"
     enchants:
       efficiency: 5
       unbreaking: 3
     custommodeldata: 12345
-  epic_sword:
-    itemtype: "IRON_SWORD"
-    name: "&cEpic Sword"
-    lore:
-      - "&7This sword can defeat any foe."
-    enchants:
-      sharpness: 5
-      fire_aspect: 2
-    custommodeldata: 67890

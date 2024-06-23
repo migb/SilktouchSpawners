@@ -35,7 +35,7 @@ public class Commands implements CommandExecutor {
         }
 
         if (command.getName().equalsIgnoreCase("silktouchspawners")) {
-            if (args[0].equalsIgnoreCase("give") && args.length == 4) {
+            if (args[0].equalsIgnoreCase("give")) {
                 handleGiveCommand(sender, args);
                 return true;
             } else if (args[0].equalsIgnoreCase("givecustomitem") && args.length == 3) {
@@ -54,22 +54,29 @@ public class Commands implements CommandExecutor {
 
     private void displayHelp(CommandSender sender) {
         sender.sendMessage(ChatColor.GOLD + "Available commands:");
-        sender.sendMessage(ChatColor.YELLOW + "/silktouchspawners give <player> <spawnertype> <amount>");
+        sender.sendMessage(ChatColor.YELLOW + "/silktouchspawners give <player> <spawnertype> [amount]");
         sender.sendMessage(ChatColor.YELLOW + "/silktouchspawners givecustomitem <player> <itemname>");
         sender.sendMessage(ChatColor.YELLOW + "/silktouchspawners reloadconfig");
     }
 
     private void handleGiveCommand(CommandSender sender, String[] args) {
         if (sender.hasPermission("silktouchspawners.give")) {
+            if (args.length < 3) {
+                sender.sendMessage(ChatColor.RED + "Usage: /silktouchspawners give <player> <spawnertype> [amount]");
+                return;
+            }
+
             Player targetPlayer = Bukkit.getPlayer(args[1]);
             String spawnerType = args[2].toUpperCase();
-            int amount;
+            int amount = 1;
 
-            try {
-                amount = Integer.parseInt(args[3]);
-            } catch (NumberFormatException e) {
-                sender.sendMessage(ChatColor.RED + "Invalid amount specified.");
-                return;
+            if (args.length == 4) {
+                try {
+                    amount = Integer.parseInt(args[3]);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(ChatColor.RED + "Invalid amount specified.");
+                    return;
+                }
             }
 
             if (targetPlayer == null) {

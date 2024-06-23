@@ -9,16 +9,24 @@ commands:
     usage: /silktouchspawners reloadconfig
   silktouchspawners:
     description: Main command for SilkTouchSpawners plugin.
-    usage: /silktouchspawners give <player> <spawnertype> <amount>
+    usage: /silktouchspawners give <player> <spawnertype> [amount]
     aliases: [sts]
   givecustomitem:
     description: Gives a custom item to a player
     usage: /silktouchspawners givecustomitem <player> <itemname>
-    aliases: [giveci]
 
 permissions:
   silktouchspawners.mine:
     description: Allows the player to mine spawners with Silk Touch
+    default: op
+  silktouchspawners.COW:
+    description: Allows the player to mine COW spawners with Silk Touch
+    default: op
+  silktouchspawners.PIG:
+    description: Allows the player to mine PIG spawners with Silk Touch
+    default: op
+  silktouchspawners.mine.all:
+    description: Allows the player to mine any type of spawner
     default: op
   silktouchspawners.reload:
     description: Allows the player to reload the plugin configuration

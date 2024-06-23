@@ -1,5 +1,6 @@
 package me.niko302.silktouchspawners.commands;
 
+import me.niko302.silktouchspawners.silktouchspawners;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -13,9 +14,15 @@ import java.util.stream.Collectors;
 
 public class CommandTabCompleter implements TabCompleter {
 
+    private final silktouchspawners plugin;
+
+    public CommandTabCompleter(silktouchspawners plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (command.getName().equalsIgnoreCase("silktouchspawners")) {
+        if (command.getName().equalsIgnoreCase("silktouchspawners") || alias.equalsIgnoreCase("sts")) {
             if (args.length == 1) {
                 // /silktouchspawners <subcommand>
                 return Arrays.asList("give", "givecustomitem", "reloadconfig");
@@ -36,7 +43,8 @@ public class CommandTabCompleter implements TabCompleter {
                             .collect(Collectors.toList());
                 } else if (args[0].equalsIgnoreCase("givecustomitem")) {
                     // /silktouchspawners givecustomitem <player> <itemname>
-                    return Arrays.asList("special_pickaxe", "epic_sword"); // Add custom item names here
+                    return plugin.getConfigManager().getCustomItemNames().stream()
+                            .collect(Collectors.toList());
                 }
             } else if (args.length == 4 && args[0].equalsIgnoreCase("give")) {
                 // /silktouchspawners give <player> <spawnertype> <amount>

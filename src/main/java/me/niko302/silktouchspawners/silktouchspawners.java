@@ -31,11 +31,8 @@ public final class silktouchspawners extends JavaPlugin implements Listener {
         Commands commandExecutor = new Commands(this);
         getCommand("reloadconfig").setExecutor(commandExecutor);
         getCommand("silktouchspawners").setExecutor(commandExecutor);
-        getCommand("silktouchspawners").setTabCompleter(new CommandTabCompleter());
-
-        // Register custom item command
-        CustomItemCommand customItemCommand = new CustomItemCommand(this);
-        getCommand("givecustomitem").setExecutor(customItemCommand);
+        getCommand("silktouchspawners").setTabCompleter(new CommandTabCompleter(this));
+        getCommand("givecustomitem").setExecutor(new CustomItemCommand(this));
 
         int pluginId = 22326; // BSTATS logging player activity
         Metrics metrics = new Metrics(this, pluginId);

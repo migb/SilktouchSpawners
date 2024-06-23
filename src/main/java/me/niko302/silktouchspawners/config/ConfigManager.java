@@ -1,21 +1,17 @@
 package me.niko302.silktouchspawners.config;
 
 import me.niko302.silktouchspawners.silktouchspawners;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import net.md_5.bungee.api.ChatColor;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ConfigManager {
 
@@ -24,6 +20,8 @@ public class ConfigManager {
     private String spawnerNameFormat;
     private List<String> spawnerLore;
     private String requiredLore;
+    private boolean requireSilkTouch;
+    private String prefix;
     private String noPermissionBreakSpawner;
     private String noPermissionWarning;
     private String spawnerBreakSuccessMessage;
@@ -59,14 +57,16 @@ public class ConfigManager {
     private void loadConfig() {
         spawnerNameFormat = translateColorCodes(config.getString("spawner-name", "&808080{mobtype} &FFFFFF Spawner"));
         spawnerLore = config.getStringList("spawner-lore");
-        requiredLore = config.getString("required-lore", "Special Lore");
-        noPermissionBreakSpawner = translateColorCodes(config.getString("messages.no-permission-break-spawner", "&cYou do not have permission to break this spawner."));
-        noPermissionWarning = translateColorCodes(config.getString("messages.no-permission-warning", "&cIf you try to break it again without the proper requirements, the spawner will be broken and not dropped."));
-        spawnerBreakSuccessMessage = translateColorCodes(config.getString("messages.spawner-break-success", "&aYou successfully mined a {mobtype} Spawner!"));
-        spawnerPlaceSuccessMessage = translateColorCodes(config.getString("messages.spawner-place-success", "&aYou placed a {mobtype} Spawner!"));
-        spawnerDropMessage = translateColorCodes(config.getString("messages.spawner-drop-message", "&cYour inventory is full. The spawner has been dropped on the ground."));
-        spawnerBreakFailureMessage = translateColorCodes(config.getString("messages.spawner-break-failure", "&cThe spawner was broken and not dropped because you didn't have the proper requirements."));
-        noPermissionChangeSpawner = translateColorCodes(config.getString("messages.no-permission-change-spawner", "&cYou do not have permission to change the type of mob."));
+        requiredLore = translateColorCodes(config.getString("required-lore", "Special Lore"));
+        requireSilkTouch = config.getBoolean("require-silk-touch", true);
+        prefix = translateColorCodes(config.getString("messages.prefix", "&FF4500[&FFFFFFSilktouchSpawners&FF4500] "));
+        noPermissionBreakSpawner = translateColorCodes(prefix + config.getString("messages.no-permission-break-spawner", "&cYou do not have permission to break this spawner."));
+        noPermissionWarning = translateColorCodes(prefix + config.getString("messages.no-permission-warning", "&cIf you try to break it again without the proper requirements, the spawner will be broken and not dropped."));
+        spawnerBreakSuccessMessage = translateColorCodes(prefix + config.getString("messages.spawner-break-success", "&aYou successfully mined a {mobtype} Spawner!"));
+        spawnerPlaceSuccessMessage = translateColorCodes(prefix + config.getString("messages.spawner-place-success", "&aYou placed a {mobtype} Spawner!"));
+        spawnerDropMessage = translateColorCodes(prefix + config.getString("messages.spawner-drop-message", "&cYour inventory is full. The spawner has been dropped on the ground."));
+        spawnerBreakFailureMessage = translateColorCodes(prefix + config.getString("messages.spawner-break-failure", "&cThe spawner was broken and not dropped because you didn't have the proper requirements."));
+        noPermissionChangeSpawner = translateColorCodes(prefix + config.getString("messages.no-permission-change-spawner", "&cYou do not have permission to change the type of mob."));
         allowChangingSpawnersGlobally = config.getBoolean("allow-changing-spawners-globally", true);
         spawnerToInventoryOnDrop = config.getBoolean("spawner-to-inventory-on-drop", true);
 
@@ -92,9 +92,8 @@ public class ConfigManager {
             meta.setDisplayName(translateColorCodes(section.getString("name", "")));
 
             List<String> lore = new ArrayList<>();
-            String requiredLore = getRequiredLore();
             for (String line : section.getStringList("lore")) {
-                lore.add(translateColorCodes(line.replace("<required-lore>", requiredLore)));
+                lore.add(translateColorCodes(line.replace("{required-lore}", requiredLore)));
             }
             meta.setLore(lore);
 
@@ -123,6 +122,10 @@ public class ConfigManager {
         return customItems.get(name);
     }
 
+    public Set<String> getCustomItemNames() {
+        return customItems.keySet();
+    }
+
     public String getSpawnerNameFormat() {
         return spawnerNameFormat;
     }
@@ -133,6 +136,10 @@ public class ConfigManager {
 
     public String getRequiredLore() {
         return requiredLore;
+    }
+
+    public boolean isRequireSilkTouch() {
+        return requireSilkTouch;
     }
 
     public String getNoPermissionBreakSpawner() {
@@ -173,36 +180,79 @@ public class ConfigManager {
 
     public static String translateColorCodes(String message) {
         StringBuilder result = new StringBuilder();
-        StringBuilder currentText = new StringBuilder();
         ChatColor currentColor = ChatColor.WHITE;
+        boolean bold = false;
+        boolean italic = false;
+        boolean underline = false;
+        boolean strikethrough = false;
+        boolean obfuscated = false;
 
         for (int i = 0; i < message.length(); i++) {
-            if (message.charAt(i) == '&' && i + 7 < message.length()) {
-                // Flush the current text with the current color
-                if (currentText.length() > 0) {
-                    result.append(currentColor).append(currentText);
-                    currentText.setLength(0);
+            if (message.charAt(i) == '&' && i + 1 < message.length()) {
+                char nextChar = message.charAt(i + 1);
+                if (isHexDigit(nextChar) && i + 6 < message.length() && isHexColor(message.substring(i + 1, i + 7))) {
+                    // Parse the new RGB color
+                    String colorCode = message.substring(i + 1, i + 7);
+                    try {
+                        Color color = Color.decode("#" + colorCode);
+                        currentColor = ChatColor.of(color);
+                        result.append(currentColor);
+                        bold = italic = underline = strikethrough = obfuscated = false; // Reset formatting
+                    } catch (NumberFormatException e) {
+                        // Invalid color code, continue with the previous color
+                    }
+                    i += 6; // Skip the color code
+                } else if (isValidChatColorCode(nextChar)) {
+                    currentColor = ChatColor.getByChar(nextChar);
+                    result.append(currentColor);
+                    bold = italic = underline = strikethrough = obfuscated = false; // Reset formatting
+                    i++; // Skip the color code
+                } else if (nextChar == 'l' || nextChar == 'L') {
+                    bold = true;
+                    result.append(ChatColor.BOLD);
+                    i++;
+                } else if (nextChar == 'o' || nextChar == 'O') {
+                    italic = true;
+                    result.append(ChatColor.ITALIC);
+                    i++;
+                } else if (nextChar == 'n' || nextChar == 'N') {
+                    underline = true;
+                    result.append(ChatColor.UNDERLINE);
+                    i++;
+                } else if (nextChar == 'm' || nextChar == 'M') {
+                    strikethrough = true;
+                    result.append(ChatColor.STRIKETHROUGH);
+                    i++;
+                } else if (nextChar == 'k' || nextChar == 'K') {
+                    obfuscated = true;
+                    result.append(ChatColor.MAGIC);
+                    i++;
+                } else if (nextChar == 'r' || nextChar == 'R') {
+                    currentColor = ChatColor.RESET;
+                    result.append(currentColor);
+                    bold = italic = underline = strikethrough = obfuscated = false; // Reset formatting
+                    i++;
+                } else {
+                    result.append('&').append(nextChar);
+                    i++;
                 }
-
-                // Parse the new color
-                String colorCode = message.substring(i + 1, i + 7);
-                try {
-                    Color color = Color.decode("#" + colorCode);
-                    currentColor = ChatColor.of(color);
-                } catch (NumberFormatException e) {
-                    // Invalid color code, continue with the previous color
-                }
-                i += 6; // Skip the color code
             } else {
-                currentText.append(message.charAt(i));
+                result.append(message.charAt(i));
             }
         }
 
-        // Add the remaining text
-        if (currentText.length() > 0) {
-            result.append(currentColor).append(currentText);
-        }
-
         return result.toString();
+    }
+
+    private static boolean isHexDigit(char c) {
+        return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+    }
+
+    private static boolean isHexColor(String color) {
+        return color.matches("[0-9A-Fa-f]{6}");
+    }
+
+    private static boolean isValidChatColorCode(char c) {
+        return "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(c) > -1;
     }
 }
