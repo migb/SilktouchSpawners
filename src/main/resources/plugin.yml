@@ -1,6 +1,7 @@
 name: SilktouchSpawners
 version: ${project.version}
 main: me.niko302.silktouchspawners.SilktouchSpawners
+authors: [ Niko302, BitByLogic ]
 api-version: '1.20'
 
 commands:
