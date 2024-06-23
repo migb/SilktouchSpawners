@@ -20,15 +20,16 @@ public class ConfigManager {
     private String spawnerNameFormat;
     private List<String> spawnerLore;
     private String requiredLore;
+    private String requiredLoreOneTimeUse;
     private boolean requireSilkTouch;
     private String prefix;
-    private String noPermissionBreakSpawner;
     private String noPermissionWarning;
     private String spawnerBreakSuccessMessage;
     private String spawnerPlaceSuccessMessage;
     private String spawnerDropMessage;
     private String spawnerBreakFailureMessage;
     private String noPermissionChangeSpawner;
+    private String noPermissionBreakSpawnerProtected;
     private boolean allowChangingSpawnersGlobally;
     private boolean spawnerToInventoryOnDrop;
     private final Map<String, ItemStack> customItems = new HashMap<>();
@@ -58,15 +59,16 @@ public class ConfigManager {
         spawnerNameFormat = translateColorCodes(config.getString("spawner-name", "&808080{mobtype} &FFFFFF Spawner"));
         spawnerLore = config.getStringList("spawner-lore");
         requiredLore = translateColorCodes(config.getString("required-lore", "Special Lore"));
+        requiredLoreOneTimeUse = translateColorCodes(config.getString("required-lore-one-time-use", "One Time Use Lore"));
         requireSilkTouch = config.getBoolean("require-silk-touch", true);
         prefix = translateColorCodes(config.getString("messages.prefix", "&FF4500[&FFFFFFSilktouchSpawners&FF4500] "));
-        noPermissionBreakSpawner = translateColorCodes(prefix + config.getString("messages.no-permission-break-spawner", "&cYou do not have permission to break this spawner."));
         noPermissionWarning = translateColorCodes(prefix + config.getString("messages.no-permission-warning", "&cIf you try to break it again without the proper requirements, the spawner will be broken and not dropped."));
         spawnerBreakSuccessMessage = translateColorCodes(prefix + config.getString("messages.spawner-break-success", "&aYou successfully mined a {mobtype} Spawner!"));
         spawnerPlaceSuccessMessage = translateColorCodes(prefix + config.getString("messages.spawner-place-success", "&aYou placed a {mobtype} Spawner!"));
         spawnerDropMessage = translateColorCodes(prefix + config.getString("messages.spawner-drop-message", "&cYour inventory is full. The spawner has been dropped on the ground."));
         spawnerBreakFailureMessage = translateColorCodes(prefix + config.getString("messages.spawner-break-failure", "&cThe spawner was broken and not dropped because you didn't have the proper requirements."));
         noPermissionChangeSpawner = translateColorCodes(prefix + config.getString("messages.no-permission-change-spawner", "&cYou do not have permission to change the type of mob."));
+        noPermissionBreakSpawnerProtected = translateColorCodes(prefix + config.getString("messages.no-permission-break-spawner-protected", "&cYou cannot take the spawner here because it is protected."));
         allowChangingSpawnersGlobally = config.getBoolean("allow-changing-spawners-globally", true);
         spawnerToInventoryOnDrop = config.getBoolean("spawner-to-inventory-on-drop", true);
 
@@ -93,7 +95,7 @@ public class ConfigManager {
 
             List<String> lore = new ArrayList<>();
             for (String line : section.getStringList("lore")) {
-                lore.add(translateColorCodes(line.replace("{required-lore}", requiredLore)));
+                lore.add(translateColorCodes(line.replace("{required-lore-one-time-use}", requiredLoreOneTimeUse).replace("{required-lore}", requiredLore)));
             }
             meta.setLore(lore);
 
@@ -138,12 +140,12 @@ public class ConfigManager {
         return requiredLore;
     }
 
-    public boolean isRequireSilkTouch() {
-        return requireSilkTouch;
+    public String getRequiredLoreOneTimeUse() {
+        return requiredLoreOneTimeUse;
     }
 
-    public String getNoPermissionBreakSpawner() {
-        return noPermissionBreakSpawner;
+    public boolean isRequireSilkTouch() {
+        return requireSilkTouch;
     }
 
     public String getNoPermissionWarning() {
@@ -168,6 +170,10 @@ public class ConfigManager {
 
     public String getNoPermissionChangeSpawner() {
         return noPermissionChangeSpawner;
+    }
+
+    public String getNoPermissionBreakSpawnerProtected() {
+        return noPermissionBreakSpawnerProtected;
     }
 
     public boolean isAllowChangingSpawnersGlobally() {

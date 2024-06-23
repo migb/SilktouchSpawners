@@ -46,13 +46,23 @@ public class BlockBreakListener implements Listener {
             CreatureSpawner spawner = (CreatureSpawner) block.getState();
             EntityType entityType = spawner.getSpawnedType();
 
+            if (entityType == null || entityType == EntityType.UNKNOWN) {
+                entityType = EntityType.PIG;
+            }
+
+            // Check if the event is triggered by one-time use item
+            if (isOneTimeUseItem(tool)) {
+                handleSpawnerBreak(event, block, player, tool, true);
+                return;
+            }
+
             if (canMineSpawner(player, entityType)) {
                 ItemMeta meta = tool.getItemMeta();
                 boolean hasSilkTouch = tool.containsEnchantment(Enchantment.SILK_TOUCH);
                 boolean hasRequiredLore = meta != null && meta.hasLore() && meta.getLore().contains(plugin.getConfigManager().getRequiredLore());
 
                 if ((plugin.getConfigManager().isRequireSilkTouch() && hasSilkTouch) || hasRequiredLore) {
-                    handleSpawnerBreak(event, block, player, tool);
+                    handleSpawnerBreak(event, block, player, tool, false);
                 } else {
                     handleSpawnerBreakFailure(event, block, player);
                 }
@@ -62,6 +72,11 @@ public class BlockBreakListener implements Listener {
         }
     }
 
+    private boolean isOneTimeUseItem(ItemStack tool) {
+        ItemMeta meta = tool.getItemMeta();
+        return meta != null && meta.hasLore() && meta.getLore().contains(plugin.getConfigManager().getRequiredLoreOneTimeUse());
+    }
+
     private boolean canMineSpawner(Player player, EntityType entityType) {
         if (player.hasPermission("silktouchspawners.mine.all")) {
             return true;
@@ -69,7 +84,11 @@ public class BlockBreakListener implements Listener {
         return player.hasPermission("silktouchspawners.mine." + entityType.name().toLowerCase());
     }
 
-    private void handleSpawnerBreak(BlockBreakEvent event, Block block, Player player, ItemStack tool) {
+    public void handleSpawnerBreak(BlockBreakEvent event, Block block, Player player, ItemStack tool, boolean isOneTimeUse) {
+        if (!(block.getState() instanceof CreatureSpawner)) {
+            return;
+        }
+
         CreatureSpawner spawner = (CreatureSpawner) block.getState();
         EntityType entityType = spawner.getSpawnedType();
 
@@ -90,8 +109,15 @@ public class BlockBreakListener implements Listener {
         }
         spawnerMeta.setLore(lore);
 
-        // Add item flag to hide default Minecraft lore
-        spawnerMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+        // Hide default Minecraft lore
+        try {
+            spawnerMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+        } catch (NoSuchFieldError e) {
+            // Clear default Minecraft lore for older versions
+            if (spawnerMeta.getLore() == null) {
+                spawnerMeta.setLore(new ArrayList<>());
+            }
+        }
 
         // Save the spawner type to the item's persistent data container
         NamespacedKey key = new NamespacedKey(plugin, "spawnerType");
@@ -109,6 +135,11 @@ public class BlockBreakListener implements Listener {
 
         event.setExpToDrop(0);
         warnedPlayers.remove(player.getUniqueId()); // Reset warning status after successful break
+
+        // Manually break the block for one-time use items
+        if (isOneTimeUse) {
+            block.setType(Material.AIR);
+        }
     }
 
     private void handleSpawnerBreakFailure(BlockBreakEvent event, Block block, Player player) {
@@ -119,7 +150,6 @@ public class BlockBreakListener implements Listener {
             player.sendMessage(ConfigManager.translateColorCodes(plugin.getConfigManager().getSpawnerBreakFailureMessage()));
         } else {
             event.setCancelled(true); // Cancel the event to prevent breaking the spawner on first try
-            player.sendMessage(ConfigManager.translateColorCodes(plugin.getConfigManager().getNoPermissionBreakSpawner()));
             player.sendMessage(ConfigManager.translateColorCodes(plugin.getConfigManager().getNoPermissionWarning()));
             warnedPlayers.add(player.getUniqueId());
         }

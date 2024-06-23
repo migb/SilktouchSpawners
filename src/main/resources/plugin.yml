@@ -13,16 +13,16 @@ commands:
     aliases: [sts]
   givecustomitem:
     description: Gives a custom item to a player
-    usage: /silktouchspawners givecustomitem <player> <itemname>
+    usage: /silktouchspawners givecustomitem <player> <itemname> [amount]
 
 permissions:
   silktouchspawners.mine:
     description: Allows the player to mine spawners with Silk Touch
     default: op
-  silktouchspawners.COW:
+  silktouchspawners.mine.COW:
     description: Allows the player to mine COW spawners with Silk Touch
     default: op
-  silktouchspawners.PIG:
+  silktouchspawners.mine.PIG:
     description: Allows the player to mine PIG spawners with Silk Touch
     default: op
   silktouchspawners.mine.all:

@@ -3,13 +3,16 @@
 # The lore that is required on a pickaxe to break a spawner if Silk Touch is not supposed to be used.
 required-lore: "&bSilktouch Spawners"
 
+# The lore that is required on a one-time use item to break and collect a spawner.
+required-lore-one-time-use: "&bSpawner Extractor"
+
 # Whether Silk Touch is required to mine spawners.
 # if set to false only required lore will work
 require-silk-touch: true
 
 # The format for the name of the spawner item when it is dropped.
 # Use {mobtype} as a placeholder for the mob type.
-spawner-name: "&FF4500{mobtype} &FFFFFFSpawner"
+spawner-name: "&7[&FF4500{mobtype} &FFFFFFSpawner&7]"
 
 # Lore for the spawner item when it is dropped.
 spawner-lore:
@@ -18,15 +21,18 @@ spawner-lore:
   - ""
 
 # Messages displayed to the player
+  #COLOR CODES CAN BE FOUND https://htmlcolorcodes.com/
+  #Remember to replace the # with a &
+  #example: #76cf12 is written as &76cf12
 messages:
   prefix: "&FF4500[&FFFFFFSilktouchSpawners&FF4500] "
   no-permission-change-spawner: "&DC143CYou do not have permission to change the type of mob."
-  no-permission-break-spawner: "&DC143CYou do not have permission to break this spawner."
   no-permission-warning: "&DC143CIf you try to break it again without the proper requirements, the spawner will be broken and not dropped."
   spawner-break-success: "&FFFFFFYou successfully mined a &FF4500{mobtype} &FFFFFFSpawner!"
   spawner-place-success: "&FFFFFFYou placed a &FF4500{mobtype} &FFFFFFSpawner!"
   spawner-drop-message: "&DC143CYour inventory is full. The spawner has been dropped on the ground."
-  spawner-break-failure: "&DC143CThe spawner was broken and not dropped because you didn't have the proper requirements."
+  spawner-break-failure: "&DC143CThe spawner was broken and not dropped"
+  no-permission-break-spawner-protected: "&DC143CYou cannot take the spawner here because it is protected."
 
 # Global setting to allow or disallow changing spawners with mob eggs.
 # If set to true, players can change spawners with mob eggs.
@@ -40,7 +46,7 @@ spawner-to-inventory-on-drop: true
 custom-items:
   special_pickaxe:
     itemtype: "DIAMOND_PICKAXE"
-    name: "&4&lSpawner Pickaxe"
+    name: "&4Spawner Extractor Pickaxe"
     lore:
       - "{required-lore}"
       - "&bYou can mine spawners with this pickaxe"
@@ -48,3 +54,12 @@ custom-items:
       efficiency: 5
       unbreaking: 3
     custommodeldata: 12345
+  one-time-use-nether-star:
+    itemtype: "NETHER_STAR"
+    name: "&bSpawner Extractor"
+    lore:
+      - "&7This item is used"
+      - "&7by &bright-clicking &7a &bSpawner"
+      - "{required-lore-one-time-use}"
+    enchants:
+      unbreaking: 1

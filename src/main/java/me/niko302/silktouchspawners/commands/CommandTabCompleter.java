@@ -46,9 +46,11 @@ public class CommandTabCompleter implements TabCompleter {
                     return plugin.getConfigManager().getCustomItemNames().stream()
                             .collect(Collectors.toList());
                 }
-            } else if (args.length == 4 && args[0].equalsIgnoreCase("give")) {
-                // /silktouchspawners give <player> <spawnertype> <amount>
-                return Arrays.asList("1", "2", "3", "4", "5");
+            } else if (args.length == 4) {
+                if (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("givecustomitem")) {
+                    // /silktouchspawners give <player> <spawnertype> <amount> or /silktouchspawners givecustomitem <player> <itemname> <amount>
+                    return Arrays.asList("1", "2", "3", "4", "5");
+                }
             }
         }
         return Collections.emptyList();

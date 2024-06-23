@@ -38,7 +38,7 @@ public class Commands implements CommandExecutor {
             if (args[0].equalsIgnoreCase("give")) {
                 handleGiveCommand(sender, args);
                 return true;
-            } else if (args[0].equalsIgnoreCase("givecustomitem") && args.length == 3) {
+            } else if (args[0].equalsIgnoreCase("givecustomitem")) {
                 handleGiveCustomItemCommand(sender, args);
                 return true;
             } else if (args[0].equalsIgnoreCase("reloadconfig")) {
@@ -55,7 +55,7 @@ public class Commands implements CommandExecutor {
     private void displayHelp(CommandSender sender) {
         sender.sendMessage(ChatColor.GOLD + "Available commands:");
         sender.sendMessage(ChatColor.YELLOW + "/silktouchspawners give <player> <spawnertype> [amount]");
-        sender.sendMessage(ChatColor.YELLOW + "/silktouchspawners givecustomitem <player> <itemname>");
+        sender.sendMessage(ChatColor.YELLOW + "/silktouchspawners givecustomitem <player> <itemname> [amount]");
         sender.sendMessage(ChatColor.YELLOW + "/silktouchspawners reloadconfig");
     }
 
@@ -99,7 +99,15 @@ public class Commands implements CommandExecutor {
                 }
                 spawnerMeta.setLore(lore);
 
-                spawnerMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+                // Hide default Minecraft lore
+                try {
+                    spawnerMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+                } catch (NoSuchFieldError e) {
+                    // Clear default Minecraft lore for older versions
+                    if (spawnerMeta.getLore() == null) {
+                        spawnerMeta.setLore(new ArrayList<>());
+                    }
+                }
 
                 // Save the spawner type to the item's persistent data container
                 NamespacedKey key = new NamespacedKey(plugin, "spawnerType");
@@ -123,8 +131,23 @@ public class Commands implements CommandExecutor {
 
     private void handleGiveCustomItemCommand(CommandSender sender, String[] args) {
         if (sender.hasPermission("silktouchspawners.give")) {
+            if (args.length < 3) {
+                sender.sendMessage(ChatColor.RED + "Usage: /silktouchspawners givecustomitem <player> <itemname> [amount]");
+                return;
+            }
+
             Player targetPlayer = Bukkit.getPlayer(args[1]);
             String itemName = args[2];
+            int amount = 1;
+
+            if (args.length == 4) {
+                try {
+                    amount = Integer.parseInt(args[3]);
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(ChatColor.RED + "Invalid amount specified.");
+                    return;
+                }
+            }
 
             if (targetPlayer == null) {
                 sender.sendMessage(ChatColor.RED + "Player not found.");
@@ -137,8 +160,10 @@ public class Commands implements CommandExecutor {
                 return;
             }
 
+            customItem.setAmount(amount);
+
             if (targetPlayer.getInventory().addItem(customItem).isEmpty()) {
-                sender.sendMessage(ChatColor.GREEN + "Gave custom item to " + targetPlayer.getName() + ".");
+                sender.sendMessage(ChatColor.GREEN + "Gave " + amount + " " + itemName + " to " + targetPlayer.getName() + ".");
             } else {
                 targetPlayer.getWorld().dropItemNaturally(targetPlayer.getLocation(), customItem);
                 targetPlayer.sendMessage(ConfigManager.translateColorCodes(plugin.getConfigManager().getSpawnerDropMessage()));
