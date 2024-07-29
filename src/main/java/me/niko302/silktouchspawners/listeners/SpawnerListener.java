@@ -150,11 +150,11 @@ public class SpawnerListener implements Listener {
             return;
         }
 
-        if (item.getType() != Material.NETHER_STAR || meta == null ||
-                (event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.LEFT_CLICK_BLOCK)) {
+        if (meta == null || (event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.LEFT_CLICK_BLOCK)) {
             return;
         }
 
+        // Check for the required lore
         if (!meta.hasLore() || !meta.getLore().contains(plugin.getConfigManager().getRequiredLoreOneTimeUse())) {
             return;
         }
@@ -172,8 +172,7 @@ public class SpawnerListener implements Listener {
         if (!blockBreakEvent.isCancelled()) {
             event.setCancelled(true);
 
-
-            // Remove only one Nether Star from the player's hand
+            // Remove only one item from the player's hand
             Bukkit.getScheduler().runTask(plugin, () -> {
                 // Call the handleSpawnerBreak method to handle the spawner drop logic
                 handleSpawnerBreak(blockBreakEvent, block, player, true);
