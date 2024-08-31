@@ -12,9 +12,14 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Getter
 public class ConfigManager {
@@ -24,6 +29,7 @@ public class ConfigManager {
 
     private final SilktouchSpawners plugin;
     private final Map<String, ItemStack> customItems = new HashMap<>();
+    private final Map<String, String> spawnerNameFormatOverrides = new HashMap<>();
     private FileConfiguration config;
     private String spawnerNameFormat;
     private List<String> spawnerLore;
@@ -83,6 +89,9 @@ public class ConfigManager {
         noPermissionBreakSpawnerProtected = color(prefix + config.getString("messages.no-permission-break-spawner-protected", "&cYou cannot take the spawner here because it is protected."));
         allowChangingSpawnersGlobally = config.getBoolean("allow-changing-spawners-globally", true);
         spawnerToInventoryOnDrop = config.getBoolean("spawner-to-inventory-on-drop", true);
+
+        // Load entity overrides
+        spawnerNameFormatOverrides.putAll(loadSpawnerNameFormatOverrides());
 
         // Load custom items
         ConfigurationSection customItemsSection = config.getConfigurationSection("custom-items");
@@ -149,6 +158,18 @@ public class ConfigManager {
         }
 
         return item;
+    }
+
+    public Map<String, String> loadSpawnerNameFormatOverrides() {
+        return Optional.ofNullable(config.getConfigurationSection("mobtype-override"))
+                .map(section -> section.getKeys(false)
+                        .stream()
+                        .filter(key -> section.getString(key) != null)
+                        .collect(Collectors.toMap(
+                                key -> key,
+                                key -> color(section.getString(key))
+                        ))
+                ).orElseGet(HashMap::new);
     }
 
     public Optional<ItemStack> getCustomItem(String name) {

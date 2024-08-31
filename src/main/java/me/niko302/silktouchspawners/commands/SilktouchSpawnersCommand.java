@@ -103,12 +103,15 @@ public class SilktouchSpawnersCommand implements TabExecutor {
             ItemStack spawnerItem = new ItemStack(Material.SPAWNER, amount);
             ItemMeta spawnerMeta = spawnerItem.getItemMeta();
 
-            String formattedName = plugin.getConfigManager().getSpawnerNameFormat().replace("{mobtype}", entityType.name());
+            String entityName =
+                    plugin.getConfigManager().getSpawnerNameFormatOverrides().getOrDefault(entityType.name(), entityType.name());
+            String formattedName = plugin.getConfigManager().getSpawnerNameFormat().replace("{mobtype}", entityName);
+
             spawnerMeta.setDisplayName(formattedName);
 
             List<String> lore = new ArrayList<>();
             for (String line : plugin.getConfigManager().getSpawnerLore()) {
-                lore.add(line.replace("{mobtype}", entityType.name()));
+                lore.add(line.replace("{mobtype}", entityName));
             }
             spawnerMeta.setLore(lore);
 

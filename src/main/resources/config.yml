@@ -20,7 +20,7 @@ spawner-lore:
   - "#808080Spawner type: #FF4500{mobtype}"
   - ""
 
-# Messages displayed to the player
+  # Messages displayed to the player
   #COLOR CODES CAN BE FOUND https://htmlcolorcodes.com/
   #Remember to replace the # with a &
   #example: #76cf12 is written as &76cf12
@@ -41,6 +41,13 @@ allow-changing-spawners-with-mob-eggs-globally: false
 
 # Option to control if spawners should be added to the player's inventory or dropped on the ground when mined.
 spawner-to-inventory-on-drop: true
+
+# https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html
+# Override mobtype placeholder for specific entity types.
+mobtype-override:
+  CHICKEN: "&fChicken"
+  BEE: "&eBee"
+
 
 # Custom items configuration
 custom-items:
