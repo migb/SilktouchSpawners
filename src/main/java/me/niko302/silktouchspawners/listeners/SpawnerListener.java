@@ -21,7 +21,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 
 public class SpawnerListener implements Listener {
 
@@ -201,13 +206,17 @@ public class SpawnerListener implements Listener {
             return;
         }
 
-        String formattedName = plugin.getConfigManager().getSpawnerNameFormat().replace("{mobtype}", entityType.name());
+        String entityName =
+                plugin.getConfigManager().getSpawnerNameFormatOverrides().getOrDefault(entityType.name(), entityType.name());
+        String formattedName = plugin.getConfigManager().getSpawnerNameFormat().replace("{mobtype}",
+                entityName);
+
         spawnerMeta.setDisplayName(formattedName);
 
         // Set custom lore
         List<String> lore = new ArrayList<>();
         for (String line : plugin.getConfigManager().getSpawnerLore()) {
-            lore.add(line.replace("{mobtype}", entityType.name()));
+            lore.add(line.replace("{mobtype}", entityName));
         }
 
         spawnerMeta.setLore(lore);
